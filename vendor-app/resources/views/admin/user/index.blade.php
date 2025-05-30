@@ -95,6 +95,34 @@
                 margin-left: 0 !important;
             }
         }
+
+        .user-header input[type="text"] {
+            width: 180px;
+        }
+
+        .user-header .btn i {
+            margin: 0;
+        }
+
+        @media (max-width: 576px) {
+            .user-header {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .user-header form,
+            .user-header button {
+                width: 100%;
+            }
+
+            .user-header h2 {
+                margin-bottom: 0.5rem;
+            }
+        }
+
+        input[type="text"]::placeholder {
+            font-size: 0.9rem;
+        }
     </style>
 </head>
 
@@ -108,6 +136,7 @@
         </div>
 
         <a href="{{ route('admin.dashboard') }}">📊 Dashboard</a>
+        <a href="#">💳 Transaksi</a>
         <a href="{{ route('admin.vendors.index') }}">🏢 Vendor</a>
         <a href="{{ route('admin.users.index') }}">👤 User</a>
 
@@ -125,17 +154,25 @@
 
     <!-- Content -->
     <div class="content" id="main-content">
-        <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
-            <h2>Manajemen User</h2>
-            <form method="GET" action="{{ route('admin.users.index') }}" class="d-flex">
-                <input type="text" name="search" value="{{ request('search') }}" class="form-control me-2"
-                    placeholder="Cari user...">
-                <button type="submit" class="btn btn-outline-primary">🔍</button>
-            </form>
-            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalTambahUser">
-                + Tambah User
-            </button>
+        <div class="d-flex align-items-center justify-content-between mb-3 flex-wrap gap-2">
+            <h2 class="mb-0">Manajemen User</h2>
+
+            <div class="d-flex align-items-center gap-2 ms-auto">
+                <form method="GET" action="{{ route('admin.users.index') }}" class="d-flex align-items-center">
+                    <input type="text" name="search" value="{{ request('search') }}"
+                        class="form-control form-control-sm" placeholder="Cari user...">
+                    <button type="submit" class="btn btn-outline-primary btn-sm ms-1">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </form>
+
+                <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal"
+                    data-bs-target="#modalTambahUser">
+                    + Tambah User
+                </button>
+            </div>
         </div>
+
 
         <table class="table table-bordered table-striped">
             <thead class="table-dark text-center align-middle">

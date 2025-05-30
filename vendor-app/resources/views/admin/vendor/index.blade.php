@@ -80,6 +80,32 @@
             cursor: pointer;
         }
 
+        .vendor-header {
+            gap: 8px;
+            /* Jarak antar elemen */
+        }
+
+        .vendor-header .form-filter {
+            margin-bottom: 0;
+        }
+
+        .vendor-header select.form-select {
+            width: auto;
+            min-width: 150px;
+        }
+
+        @media (max-width: 576px) {
+            .vendor-header {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .vendor-header .form-filter,
+            .vendor-header button {
+                width: 100%;
+            }
+        }
+
         @media (max-width: 768px) {
             .sidebar {
                 left: -220px;
@@ -107,6 +133,7 @@
         </div>
 
         <a href="{{ route('admin.dashboard') }}">📊 Dashboard</a>
+        <a href="#">💳 Transaksi</a>
         <a href="{{ route('admin.vendors.index') }}">🏢 Vendor</a>
         <a href="{{ route('admin.users.index') }}">👤 User</a>
 
@@ -124,9 +151,30 @@
 
     <!-- Content -->
     <div class="content" id="main-content">
-        <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
-            <h2>Manajemen Vendor</h2>
-            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#tambahVendorModal">
+        <div class="d-flex align-items-center mb-3 flex-wrap vendor-header">
+            <h2 class="me-auto">Manajemen Vendor</h2>
+
+            <form method="GET" action="{{ route('admin.vendors.index') }}">
+                <div class="input-group input-group-sm" style="max-width: 250px;">
+                    <input type="text" name="search" value="{{ request('search') }}" class="form-control"
+                        placeholder="Cari vendor...">
+                    <button class="btn btn-light border" type="submit">🔍</button>
+                </div>
+            </form>
+
+            <form method="GET" action="{{ route('admin.vendors.index') }}" class="form-filter me-2">
+                <select name="kategori_id" class="form-select form-select-sm" onchange="this.form.submit()">
+                    <option value="">-- Semua Kategori --</option>
+                    @foreach ($kategoris as $kategori)
+                        <option value="{{ $kategori->id }}" {{ request('kategori_id') == $kategori->id ? 'selected' : '' }}>
+                            {{ $kategori->nama_kategori }}
+                        </option>
+                    @endforeach
+                </select>
+            </form>
+
+            <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal"
+                data-bs-target="#tambahVendorModal">
                 + Tambah Vendor
             </button>
         </div>
@@ -182,7 +230,17 @@
             <thead class="table-dark text-center align-middle">
                 <tr>
                     <th>No</th>
-                    <th>Nama Vendor</th>
+                    <th>
+                        <a href="{{ route('admin.vendors.index', ['sort' => request('sort') === 'nama_asc' ? 'nama_desc' : 'nama_asc', 'kategori_id' => request('kategori_id')]) }}"
+                            class="text-white text-decoration-none">
+                            Nama Vendor
+                            @if(request('sort') === 'nama_asc')
+
+                            @elseif(request('sort') === 'nama_desc')
+
+                            @endif
+                        </a>
+                    </th>
                     <th>Email</th>
                     <th>WhatsApp</th>
                     <th>Alamat</th>
@@ -221,7 +279,8 @@
 
                     <!-- Modal Edit Vendor -->
                     <div class="modal fade" id="modalEditVendor{{ $vendor->id }}" tabindex="-1"
-                        aria-labelledby="modalEditVendorLabel{{ $vendor->id }}" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+                        aria-labelledby="modalEditVendorLabel{{ $vendor->id }}" aria-hidden="true" data-bs-backdrop="static"
+                        data-bs-keyboard="false">
                         <div class="modal-dialog">
                             <form method="POST" action="{{ route('admin.vendors.update', $vendor->id) }}">
                                 @csrf

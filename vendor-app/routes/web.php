@@ -4,6 +4,8 @@ use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\VendorController;
+use App\Http\Controllers\Unit\PemesananController;
+use App\Http\Controllers\Unit\TransaksiController;
 
 /*
 |--------------------------------------------------------------------------
@@ -19,6 +21,10 @@ use App\Http\Controllers\Admin\VendorController;
 // Route::get('/', function () {
 //     return view('welcome');
 // });
+
+Route::get('/', function () {
+    return redirect()->route('login');
+});
 
 Route::middleware(['auth'])->group(function () {
     Route::get('/dashboard', function () {
@@ -40,6 +46,14 @@ Route::middleware(['auth', 'is_admin'])->prefix('admin')->group(function () {
     Route::post('/vendors', [VendorController::class, 'store'])->name('admin.vendors.store');
     Route::put('/vendors/{id}', [VendorController::class, 'update'])->name('admin.vendors.update');
     Route::delete('/vendors/{id}', [VendorController::class, 'destroy'])->name('admin.vendors.destroy');
+});
+
+Route::middleware(['auth'])->prefix('unit')->group(function () {
+    Route::get('/dashboard', fn() => view('unit.dashboard'))->name('unit.dashboard');
+    Route::get('/pemesanan', [PemesananController::class, 'index'])->name('unit.pemesanan.index');
+    Route::post('/pemesanan', [PemesananController::class, 'store'])->name('unit.pemesanan.store');
+    Route::get('/unit/transaksi', [TransaksiController::class, 'index'])->name('unit.transaksi.index');
+    Route::post('/unit/transaksi/{id}/reorder', [App\Http\Controllers\Unit\TransaksiController::class, 'reorder'])->name('unit.transaksi.reorder');
 });
 
 require __DIR__ . '/auth.php';

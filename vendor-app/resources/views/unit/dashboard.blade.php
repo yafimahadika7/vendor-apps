@@ -1,8 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
-    <title>Dashboard Admin</title>
+    <title>Dashboard Bisnis Unit</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         body {
@@ -11,6 +12,7 @@
             padding: 0;
             overflow-x: hidden;
         }
+
         .sidebar {
             height: 100vh;
             width: 220px;
@@ -23,10 +25,13 @@
             transition: all 0.3s ease;
             z-index: 1000;
         }
+
         .sidebar.hide {
             left: -220px;
         }
-        .sidebar a, .sidebar form button {
+
+        .sidebar a,
+        .sidebar form button {
             color: white;
             padding: 10px 20px;
             display: block;
@@ -36,9 +41,12 @@
             text-align: left;
             width: 100%;
         }
-        .sidebar a:hover, .sidebar form button:hover {
+
+        .sidebar a:hover,
+        .sidebar form button:hover {
             background-color: #495057;
         }
+
         .topbar {
             height: 60px;
             background-color: #f8f9fa;
@@ -49,17 +57,21 @@
             margin-left: 220px;
             transition: margin-left 0.3s ease;
         }
+
         .topbar.collapsed {
             margin-left: 0;
         }
+
         .content {
             margin-left: 220px;
             padding: 2rem;
             transition: margin-left 0.3s ease;
         }
+
         .content.collapsed {
             margin-left: 0;
         }
+
         .toggle-btn {
             font-size: 24px;
             background: none;
@@ -71,25 +83,31 @@
             .sidebar {
                 left: -220px;
             }
+
             .sidebar.show {
                 left: 0;
             }
-            .topbar, .content {
+
+            .topbar,
+            .content {
                 margin-left: 0 !important;
             }
         }
     </style>
 </head>
+
 <body>
 
-    <!-- Sidebar -->    
+    <!-- Sidebar -->
     <div class="sidebar" id="sidebar">
         <div class="text-center mb-3">
             <strong>{{ Auth::user()->name }}</strong><br>
             <small class="text-warning">{{ ucfirst(Auth::user()->unit_name) }}</small>
         </div>
 
-        <a href="#">📊 Dashboard</a>
+        <a href="{{ route('unit.dashboard') }}">📊 Dashboard</a>
+        <a href="{{ route('unit.transaksi.index') }}">📦 Transaksi</a>
+        <a href="{{ route('unit.pemesanan.index') }}">📝 Pemesanan</a>
 
         <form method="POST" action="{{ route('logout') }}">
             @csrf
@@ -105,8 +123,7 @@
 
     <!-- Content -->
     <div class="content" id="main-content">
-        <h2>Dashboard Admin</h2>
-        <p>Ini adalah tampilan awal dashboard.</p>
+        <h2>Dashboard {{ ucfirst(Auth::user()->unit_name) }}</h2>
     </div>
 
     <!-- JavaScript -->
@@ -123,4 +140,5 @@
     </script>
 
 </body>
+
 </html>

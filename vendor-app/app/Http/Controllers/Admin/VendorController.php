@@ -9,10 +9,43 @@ use App\Models\Kategori;
 
 class VendorController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $vendors = Vendor::with('kategori')->latest()->get();
-        $kategoris = \App\Models\Kategori::all(); // untuk dropdown form nanti
+        $query = Vendor::with('kategori');
+
+        // Filter berdasarkan kategori
+        if ($request->filled('kategori_id')) {
+            $query->where('kategori_id', $request->kategori_id);
+        }
+
+        // Search berdasarkan nama_vendor, email, atau whatsapp
+        if ($request->filled('search')) {
+            $query->where(function ($q) use ($request) {
+                $q->where('nama_vendor', 'like', '%' . $request->search . '%')
+                    ->orWhere('email', 'like', '%' . $request->search . '%')
+                    ->orWhere('kontak_whatsapp', 'like', '%' . $request->search . '%');
+            });
+        }
+
+        // Sorting
+        if ($request->filled('sort')) {
+            switch ($request->sort) {
+                case 'nama_asc':
+                    $query->orderBy('nama_vendor', 'asc');
+                    break;
+                case 'nama_desc':
+                    $query->orderBy('nama_vendor', 'desc');
+                    break;
+                default:
+                    break; // jangan taruh latest() di sini
+            }
+        } else {
+            $query->latest();
+        }
+
+        $vendors = $query->get();
+        $kategoris = \App\Models\Kategori::all();
+
         return view('admin.vendor.index', compact('vendors', 'kategoris'));
     }
 

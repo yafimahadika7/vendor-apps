@@ -90,6 +90,7 @@
         </div>
 
         <a href="{{ route('admin.dashboard') }}">📊 Dashboard</a>
+        <a href="#">💳 Transaksi</a>
         <a href="{{ route('admin.vendors.index') }}">🏢 Vendor</a>
         <a href="{{ route('admin.users.index') }}">👤 User</a>
 
