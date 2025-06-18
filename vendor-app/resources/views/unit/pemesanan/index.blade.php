@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <title>Dashboard Bisnis Unit</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <style>
         body {
             min-height: 100vh;
@@ -147,7 +148,6 @@
                 </select>
             </form>
         </div>
-
         <table class="table table-bordered table-striped mt-4">
             <thead class="table-dark text-center align-middle">
                 <tr>
@@ -167,6 +167,7 @@
                     <th>WhatsApp</th>
                     <th>Alamat</th>
                     <th>Kategori</th>
+                    <th>Katalog</th>
                     <th>Aksi</th>
                 </tr>
             </thead>
@@ -180,6 +181,50 @@
                         <td>{{ $vendor->alamat }}</td>
                         <td>{{ $vendor->kategori->nama_kategori ?? '-' }}</td>
                         <td class="text-center">
+                            @if ($vendor->katalog)
+                                <!-- Tombol Lihat (Modal) -->
+                                <button type="button" class="btn btn-sm btn-info me-1" data-bs-toggle="modal"
+                                    data-bs-target="#modalKatalog{{ $vendor->id }}" title="Lihat Katalog">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+
+                                <!-- Tombol Download -->
+                                <a href="{{ asset('storage/katalog/' . $vendor->katalog) }}" class="btn btn-sm btn-secondary"
+                                    download title="Download Katalog">
+                                    <i class="fas fa-download"></i>
+                                </a>
+
+                                <!-- Modal Lihat Katalog -->
+                                <div class="modal fade" id="modalKatalog{{ $vendor->id }}" tabindex="-1" aria-hidden="true">
+                                    <div class="modal-dialog modal-lg">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title">Katalog {{ $vendor->nama_vendor }}</h5>
+                                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                            </div>
+                                            <div class="modal-body text-center">
+                                                @php
+                                                    $ext = strtolower(pathinfo($vendor->katalog, PATHINFO_EXTENSION));
+                                                @endphp
+
+                                                @if ($ext === 'pdf')
+                                                    <embed src="{{ asset('storage/katalog/' . $vendor->katalog) }}"
+                                                        type="application/pdf" width="100%" height="500px">
+                                                @elseif (in_array($ext, ['jpg', 'jpeg', 'png']))
+                                                    <img src="{{ asset('storage/katalog/' . $vendor->katalog) }}" class="img-fluid"
+                                                        alt="Katalog">
+                                                @else
+                                                    <p class="text-danger">Format katalog tidak dikenali.</p>
+                                                @endif
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            @else
+                                <span class="text-muted">-</span>
+                            @endif
+                        </td>
+                        <td class="text-center">
                             <button class="btn btn-sm btn-success" data-bs-toggle="modal"
                                 data-bs-target="#modalPesan{{ $vendor->id }}">
                                 Pesan
@@ -188,7 +233,7 @@
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="7" class="text-center">Belum ada vendor.</td>
+                        <td colspan="8" class="text-center">Belum ada vendor.</td>
                     </tr>
                 @endforelse
             </tbody>

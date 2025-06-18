@@ -24,7 +24,8 @@ class TransaksiController extends Controller
             return redirect()->route('unit.transaksi.index', $queryParams);
         }
 
-        $query = Transaksi::with(['vendor', 'kategori', 'user']);
+        $query = Transaksi::with(['vendor', 'kategori', 'user'])
+            ->where('user_id', Auth::id());
 
         // Filter berdasarkan nama vendor, kategori, atau item
         if ($request->filled('search')) {

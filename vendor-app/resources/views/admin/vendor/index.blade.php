@@ -183,7 +183,7 @@
         <div class="modal fade" id="tambahVendorModal" tabindex="-1" aria-labelledby="tambahVendorModalLabel"
             aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
             <div class="modal-dialog">
-                <form action="{{ route('admin.vendors.store') }}" method="POST">
+                <form action="{{ route('admin.vendors.store') }}" method="POST" enctype="multipart/form-data">
                     @csrf
                     <div class="modal-content">
                         <div class="modal-header">
@@ -193,28 +193,33 @@
                         <div class="modal-body">
                             <div class="mb-3">
                                 <label for="nama_vendor" class="form-label">Nama Vendor</label>
-                                <input type="text" class="form-control" name="nama_vendor" required>
+                                <input type="text" class="form-control" id="nama_vendor" name="nama_vendor" required>
                             </div>
                             <div class="mb-3">
                                 <label for="email" class="form-label">Email Vendor</label>
-                                <input type="email" class="form-control" name="email">
+                                <input type="email" class="form-control" id="email" name="email">
                             </div>
                             <div class="mb-3">
                                 <label for="kontak_whatsapp" class="form-label">Kontak WhatsApp</label>
-                                <input type="text" class="form-control" name="kontak_whatsapp">
+                                <input type="text" class="form-control" id="kontak_whatsapp" name="kontak_whatsapp">
                             </div>
                             <div class="mb-3">
                                 <label for="alamat" class="form-label">Alamat</label>
-                                <textarea class="form-control" name="alamat" rows="2"></textarea>
+                                <textarea class="form-control" id="alamat" name="alamat" rows="2"></textarea>
                             </div>
                             <div class="mb-3">
                                 <label for="kategori_id" class="form-label">Kategori</label>
-                                <select name="kategori_id" class="form-select" required>
+                                <select name="kategori_id" id="kategori_id" class="form-select" required>
                                     <option value="">-- Pilih Kategori --</option>
                                     @foreach ($kategoris as $kategori)
                                         <option value="{{ $kategori->id }}">{{ $kategori->nama_kategori }}</option>
                                     @endforeach
                                 </select>
+                            </div>
+                            <div class="mb-3">
+                                <label for="katalog" class="form-label">Katalog (PDF/Gambar)</label>
+                                <input type="file" name="katalog" id="katalog" class="form-control"
+                                    accept=".pdf,.jpg,.jpeg,.png">
                             </div>
                         </div>
                         <div class="modal-footer">
@@ -245,6 +250,7 @@
                     <th>WhatsApp</th>
                     <th>Alamat</th>
                     <th>Kategori</th>
+                    <th>Katalog</th>
                     <th>Aksi</th>
                 </tr>
             </thead>
@@ -257,6 +263,42 @@
                         <td>{{ $vendor->kontak_whatsapp }}</td>
                         <td>{{ $vendor->alamat }}</td>
                         <td>{{ $vendor->kategori->nama_kategori ?? '-' }}</td>
+                        <td class="text-center">
+                            @if ($vendor->katalog)
+                                <button type="button" class="btn btn-sm btn-info" data-bs-toggle="modal"
+                                    data-bs-target="#modalKatalog{{ $vendor->id }}">
+                                    Lihat
+                                </button>
+
+                                <!-- Modal Katalog -->
+                                <div class="modal fade" id="modalKatalog{{ $vendor->id }}" tabindex="-1" aria-hidden="true">
+                                    <div class="modal-dialog modal-lg">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title">Katalog Vendor</h5>
+                                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                            </div>
+                                            <div class="modal-body text-center">
+                                               @php
+                                                    $ext = strtolower(pathinfo($vendor->katalog, PATHINFO_EXTENSION));
+                                                @endphp
+
+                                                @if ($ext === 'pdf')
+                                                    <embed src="{{ asset('storage/katalog/' . $vendor->katalog) }}" type="application/pdf" width="100%" height="500px">
+                                                @elseif (in_array($ext, ['jpg', 'jpeg', 'png']))
+                                                    <img src="{{ asset('storage/katalog/' . $vendor->katalog) }}" class="img-fluid" alt="Katalog">
+                                                @else
+                                                    <p class="text-danger">Format file tidak didukung.</p>
+                                                @endif
+
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            @else
+                                <span class="text-muted">-</span>
+                            @endif
+                        </td>
                         <td>
                             <div class="d-flex gap-1">
                                 <!-- Tombol Edit -->
@@ -266,7 +308,7 @@
                                 </a>
                                 <!-- Tombol Hapus -->
                                 <form action="{{ route('admin.vendors.destroy', $vendor->id) }}" method="POST"
-                                    onsubmit="return confirm('Yakin ingin menghapus vendor ini?')">
+                                    class="form-delete d-inline">
                                     @csrf
                                     @method('DELETE')
                                     <button type="submit" class="btn btn-sm btn-danger" title="Hapus">
@@ -339,6 +381,8 @@
         </table>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
     <!-- JavaScript -->
     <script>
         function toggleSidebar() {
@@ -350,6 +394,30 @@
             content.classList.toggle('collapsed');
             topbar.classList.toggle('collapsed');
         }
+    </script>
+
+    <script>
+        // Tangani semua form dengan class "form-delete"
+        document.querySelectorAll('.form-delete').forEach(form => {
+            form.addEventListener('submit', function (e) {
+                e.preventDefault(); // Mencegah submit langsung
+
+                Swal.fire({
+                    title: 'Yakin ingin menghapus?',
+                    text: "Data vendor akan dihapus secara permanen.",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#d33',
+                    cancelButtonColor: '#6c757d',
+                    confirmButtonText: 'Ya, hapus!',
+                    cancelButtonText: 'Batal'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        form.submit(); // Submit jika dikonfirmasi
+                    }
+                });
+            });
+        });
     </script>
 
 </body>

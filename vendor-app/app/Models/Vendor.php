@@ -15,6 +15,7 @@ class Vendor extends Model
         'kontak_whatsapp',
         'alamat',
         'kategori_id',
+        'katalog',
     ];
 
     public function kategori()

@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Vendor;
 use App\Models\Kategori;
+use Illuminate\Support\Facades\Storage;
 
 class VendorController extends Controller
 {
@@ -51,25 +52,53 @@ class VendorController extends Controller
 
     public function store(Request $request)
     {
+        \Log::info('Request store vendor:', $request->all());
+
         $request->validate([
             'nama_vendor' => 'required|string|max:100',
             'email' => 'nullable|email|max:100',
             'kontak_whatsapp' => 'nullable|string|max:20',
             'alamat' => 'nullable|string',
             'kategori_id' => 'required|exists:kategoris,id',
+            'katalog' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:20480',
         ]);
 
-        Vendor::create([
+        $namaFileKatalog = null;
+
+        if ($request->hasFile('katalog')) {
+            $file = $request->file('katalog');
+
+            \Log::info('File katalog terdeteksi:', [
+                'originalName' => $file->getClientOriginalName(),
+                'extension' => $file->getClientOriginalExtension(),
+                'mime' => $file->getMimeType(),
+                'size_kb' => $file->getSize() / 1024,
+            ]);
+
+            $namaFileKatalog = time() . '_' . $file->getClientOriginalName();
+
+            // Simpan ke storage/app/public/katalog
+            \Illuminate\Support\Facades\Storage::disk('public')->putFileAs('katalog', $file, $namaFileKatalog);
+
+            \Log::info('File katalog disimpan ke:', [
+                'path' => 'storage/app/public/katalog/' . $namaFileKatalog,
+                'url_akses' => asset('storage/katalog/' . $namaFileKatalog),
+            ]);
+        }
+
+        $vendor = Vendor::create([
             'nama_vendor' => $request->nama_vendor,
             'email' => $request->email,
             'kontak_whatsapp' => $request->kontak_whatsapp,
             'alamat' => $request->alamat,
             'kategori_id' => $request->kategori_id,
+            'katalog' => $namaFileKatalog,
         ]);
+
+        \Log::info('Vendor berhasil dibuat:', $vendor->toArray());
 
         return redirect()->route('admin.vendors.index')->with('success', 'Vendor berhasil ditambahkan!');
     }
-
     public function update(Request $request, $id)
     {
         $request->validate([
